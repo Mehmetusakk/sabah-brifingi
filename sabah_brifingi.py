@@ -29,15 +29,9 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; SabahBrifingiBot/1.0)"}
 ITEMS_PER_CATEGORY = 4
 WINDOW_HOURS = 24  # bir onceki 09:00'dan bu 09:00'a kadar
 
+# Siralama onemli: Turkiye'yi ilgilendiren kategoriler mailde her zaman
+# en basta gosterilir.
 FEEDS = {
-    "Teknoloji": [
-        ("TechCrunch", "https://techcrunch.com/feed/"),
-        ("The Verge", "https://www.theverge.com/rss/index.xml"),
-    ],
-    "Dunya ve Jeopolitik": [
-        ("BBC World", "http://feeds.bbci.co.uk/news/world/rss.xml"),
-        ("Al Jazeera", "https://www.aljazeera.com/xml/rss/all.xml"),
-    ],
     "Turkiyede Is Firsatlari": [
         ("Webrazzi", "https://webrazzi.com/feed/"),
         ("AA Ekonomi", "https://www.aa.com.tr/tr/rss/default?cat=ekonomi"),
@@ -46,8 +40,16 @@ FEEDS = {
         ("BloombergHT", "https://www.bloomberght.com/rss"),
         ("Dunya Gazetesi", "https://www.dunya.com/rss?kategori=ekonomi"),
     ],
+    "Teknoloji": [
+        ("TechCrunch", "https://techcrunch.com/feed/"),
+        ("The Verge", "https://www.theverge.com/rss/index.xml"),
+    ],
     "Yapay Zeka": [
         ("TechCrunch AI", "https://techcrunch.com/category/artificial-intelligence/feed/"),
+    ],
+    "Dunya ve Jeopolitik": [
+        ("BBC World", "http://feeds.bbci.co.uk/news/world/rss.xml"),
+        ("Al Jazeera", "https://www.aljazeera.com/xml/rss/all.xml"),
     ],
     "Gunun Firsat Yazilim Projeleri": [
         ("Hacker News - Show HN", "https://hnrss.org/show"),
@@ -55,11 +57,11 @@ FEEDS = {
 }
 
 CATEGORY_TITLES_TR = {
-    "Teknoloji": "Teknoloji",
-    "Dunya ve Jeopolitik": "Dunya ve Jeopolitik",
     "Turkiyede Is Firsatlari": "Turkiye'de Is Firsatlari",
     "Turkiye Guncel Ekonomik Haberleri": "Turkiye Guncel Ekonomik Haberleri",
+    "Teknoloji": "Teknoloji",
     "Yapay Zeka": "Yapay Zeka",
+    "Dunya ve Jeopolitik": "Dunya ve Jeopolitik",
     "Gunun Firsat Yazilim Projeleri": "Gunun Firsat Yazilim Projeleri",
 }
 
@@ -96,69 +98,88 @@ INTRO_LINES = [
 ]
 
 # -----------------------------------------------------------------------
-# Girisim fikri sablonlari: anahtar kelime -> (ihtiyac, AI ile tek basina
-# yapilabilecek urun fikri, ilk adim)
+# Girisim fikirleri: haberlerden BAGIMSIZ, sabit bir havuz. Kullanici
+# profiline gore secildi -> is gelistirme uzmani, Istanbul, Nesine'de
+# calisiyor, tek basina + sadece AI araclariyla kurabilecegi, dusuk
+# maliyet/bakim gerektiren ama buyume/kazanc potansiyeli yuksek fikirler.
+# Her sabah gundeme gore (o gunku haber metnine gore) bu havuzdan en
+# alakali olanlar one cikarilir, geri kalani rastgele secilir.
 # -----------------------------------------------------------------------
-IDEA_TEMPLATES = [
-    (["ai", "yapay zeka", "artificial intelligence", "model", "chatgpt", "openai", "agent"],
-     "AI Destekli Niche Otomasyon Araci",
-     "Haberdeki AI modelini/araci bir API olarak kullanip, kucuk isletmeler icin "
-     "tek bir sikayeti cozen basit bir SaaS arayuzu kur (ör. fatura ozetleme, "
-     "musteri mesaji yanitlama, icerik uretme). Kodun cogunu AI ile yaz, "
-     "no-code arayuz (ör. Lovable/Bubble) ile birlestir.",
-     "Bugun o API'nin ucretsiz kotasiyla 1 saatlik bir prototip dene."),
-    (["startup", "girisim", "yatirim", "funding", "finansman"],
-     "Mikro-SaaS: Bu Girisimin Kucuk Versiyonu",
-     "Haberdeki girisimin cozdugu problemin kucuk, tek kullanicili / tek "
-     "ekip icin yeterli bir 'mini' versiyonunu AI ile kodlayip aylik "
-     "abonelikle sat.",
-     "Haberdeki sirketin web sitesine gir, fiyatlandirma sayfasini incele."),
-    (["e-ticaret", "ecommerce", "perakende", "retail"],
-     "AI Destekli E-ticaret Yan Araci",
-     "Kucuk e-ticaret satici icin urun aciklamasi/gorsel/SEO ureten bir "
-     "AI araci yap; Shopify/Trendyol/Ikas entegrasyonu ile tek basina "
-     "satabilecegin bir eklenti haline getir.",
-     "Bir pazar yerinde 10 kucuk satici bul, DM ile ihtiyaclarini sor."),
-    (["enerji", "energy", "iklim", "climate", "cevre", "surdurulebilir"],
-     "Surdurulebilirlik Raporlama Araci",
-     "KOBI'lerin karbon ayak izini / enerji tuketimini AI ile otomatik "
-     "hesaplayip rapor ureten basit bir web araci kur (AB uyum "
-     "zorunluluklari arttikca talep artiyor).",
-     "3 KOBI'ye bu raporu şu an nasil hazirladiklarini sor."),
-    (["is gucu", "istihdam", "issizlik", "employment", "isci"],
-     "AI ile Ise Alim/Egitim Araci",
-     "Kucuk sirketler icin AI destekli mulakat on elemesi veya yeni "
-     "calisan onboarding/egitim materyali ureten bir arac gelistir.",
-     "LinkedIn'de 5 IK uzmanina bu surecte en cok vakit kaybettikleri "
-     "yeri sor."),
-    (["finans", "bankacilik", "banking", "faiz", "kur", "enflasyon"],
-     "Kisisel Finans AI Asistani (Niche)",
-     "Belirli bir hedef kitleye (freelancer, esnaf, yan is yapanlar) "
-     "ozel, AI ile gelir-gider/vergi tahmini yapan basit bir arac kur.",
-     "Kendi gelir-gider verinle bir prototip dene, isteyene demo goster."),
-    (["saglik", "health", "healthcare", "ilaç"],
-     "AI Destekli Saglik Takip/Hatirlatma Araci",
-     "Kronik hastalik takibi veya ilac hatirlatma gibi dar bir alanda, "
-     "AI ile kisisellestirilmis basit bir mobil/web araci gelistir.",
-     "Bir hasta/yakin grubu forumunda en cok sikayet edilen noktayi bul."),
-    (["egitim", "education", "ogrenci", "universite"],
-     "AI Destekli Mikro-Egitim Platformu",
-     "Dar bir konuda (ör. bir sinav, bir yazilim dili) AI ile kisisellestirilmis "
-     "mikro-ders/quiz ureten bir platform kur; tek basina icerik + kod "
-     "uretimini AI'a yaptir.",
-     "Bir Telegram/Discord ogrenci grubuna gir, en cok sorulan soruyu not et."),
-]
-
-GENERIC_IDEAS = [
-    ("AI Icerik Ajansi (Tek Kisilik)",
-     "Kucuk isletmelere sosyal medya/blog icerigini tamamen AI araclariyla "
-     "uretip yoneten, aylik abonelikle calisan bir hizmet kur.",
-     "3 esnaf/KOBI'ye sosyal medya yonetimini kime yaptirdiklarini sor."),
-    ("Dar Niche AI SaaS",
-     "Gunluk takip ettigin bir sektorde (ör. emlak, lojistik, hukuk) "
-     "tek bir sikayeti cozen, tamamen AI ile kodlanmis basit bir SaaS urunu "
-     "gelistirip Product Hunt'ta lansla.",
-     "Bugun Reddit/Twitter'da o sektorle ilgili 5 sikayet ara."),
+PROFILE_IDEA_POOL = [
+    (["yapay zeka", "ai", "otomasyon", "chatbot", "model"],
+     "Nise AI Chatbot Hizmeti (Esnaf/KOBI Icin)",
+     "Kucuk isletmelere (kuafor, diyetisyen, hukuk burosu vb.) WhatsApp "
+     "uzerinden calisan, randevu alan ve sik sorulan sorulari yanitlayan "
+     "AI chatbot kur. Tek bir no-code/low-code altyapi (ör. n8n + bir LLM "
+     "API'si) ile aylik sabit ucretle onlarca musteriye satilabilir.",
+     "Dusuk: Sunucu/API maliyeti aylik birkac dolar, bakim neredeyse sifir.",
+     "Yuksek: Her musteri tekrarlayan aylik gelir, cok sayida isletmeye kopyalanabilir.",
+     "Cevrendeki 5 esnafa WhatsApp'tan musteri sorularini kim yanitliyor diye sor."),
+    (["e-ticaret", "ecommerce", "perakende", "trendyol", "hepsiburada"],
+     "AI Destekli Urun Aciklamasi / Reklam Metni Araci",
+     "Trendyol/Hepsiburada/Shopify saticilari icin, urun fotografindan "
+     "otomatik SEO'lu aciklama ve reklam metni ureten basit bir web araci "
+     "yap. Tek kisi tarafindan AI ile kodlanip aylik abonelikle satilabilir.",
+     "Dusuk: Sadece API cagrisi maliyeti, sunucu yuku hafif.",
+     "Yuksek: Binlerce kucuk satici potansiyel musteri, viral buyume sansi.",
+     "Bir e-ticaret saticilar grubuna (Facebook/Telegram) katil, en cok "
+     "sikayet edilen konuyu not al."),
+    (["finans", "kur", "enflasyon", "faiz", "ekonomi"],
+     "Freelancer/Esnaf Icin AI Mali Musavir Asistani",
+     "Fatura/fis fotografini okuyup otomatik gelir-gider takibi ve basit "
+     "vergi tahmini yapan bir mobil/web araci; AI OCR + basit kurallarla "
+     "tek basina gelistirilebilir.",
+     "Dusuk: Bulut OCR/LLM API maliyeti disinda ek yatirim gerekmiyor.",
+     "Yuksek: Turkiye'de milyonlarca esnaf/freelancer hedef kitle, "
+     "abonelik modeliyle olceklenir.",
+     "3 freelancer arkadasina gelir-gider takibini nasil yaptigini sor."),
+    (["egitim", "ogrenci", "universite", "sinav", "dil ogren"],
+     "AI ile Kisisellestirilmis Sinav/Dil Kocu",
+     "YKS/KPSS/yabanci dil gibi dar bir sinav turunde, AI ile kisiye ozel "
+     "soru ureten ve zayif konulari tespit eden bir web/app araci; "
+     "icerik uretimini tamamen AI yapar, sen sadece urunu kurgularsin.",
+     "Dusuk: Icerik uretim maliyeti AI ile neredeyse sifir, sunucu hafif.",
+     "Yuksek: Buyuk ve surekli yenilenen ogrenci kitlesi, abonelik + "
+     "reklam geliri potansiyeli.",
+     "Bir ogrenci Telegram/Discord grubuna gir, en cok sorulan soruyu "
+     "not al."),
+    (["saglik", "wellness", "diyet", "fitness"],
+     "AI Destekli Kisisel Saglik/Beslenme Takip Araci",
+     "Yemek fotografindan kalori/makro tahmini yapan, AI ile kisisel "
+     "oneriler sunan basit bir mobil uygulama; gorsel tanima + LLM "
+     "API'leriyle tek basina kurulabilir.",
+     "Dusuk: API tabanli, kendi sunucunu buyutmene gerek yok.",
+     "Yuksek: Saglik/fitness app pazari buyuk ve surekli buyuyor, "
+     "abonelik modeli kanitlanmis.",
+     "App Store'da bu kategoride en cok sikayet edilen 3 uygulamayi "
+     "incele, eksiklerini not al."),
+    (["emlak", "kira", "konut"],
+     "AI Destekli Kira/Emlak Karsilastirma Araci",
+     "Bolgeye gore kira/satis fiyatlarini AI ile analiz edip adil fiyat "
+     "tahmini sunan bir web araci; acik veri + basit bir model ile tek "
+     "basina kurulabilir, reklam veya premium rapor ile gelir uretir.",
+     "Dusuk: Veri toplama otomatik, sunucu maliyeti dusuk.",
+     "Yuksek: Turkiye'de kira/emlak gundemde kaldigi surece trafik potansiyeli yuksek.",
+     "Sahibinden/Hepsiemlak'tan 20 ilan cekip fiyat farkliliklarini incele."),
+    (["lojistik", "kargo", "tedarik"],
+     "Kucuk Isletmeler icin AI Stok/Siparis Tahmin Araci",
+     "Kucuk e-ticaret/perakende isletmeleri icin gecmis satis verisinden "
+     "AI ile stok tukenme tahmini yapan basit bir dashboard; tek basina "
+     "AI ile kodlanip aylik abonelikle satilabilir.",
+     "Dusuk: Hafif bir web uygulamasi, veri isleme maliyeti dusuk.",
+     "Yuksek: Stoksuz kalma/asiri stok kaybini azalttigi icin net ROI "
+     "gosterilebilir, satisi kolaylasir.",
+     "2-3 kucuk e-ticaret satici ile konusup stok yonetimini nasil "
+     "yaptiklarini sor."),
+    (["icerik", "sosyal medya", "pazarlama", "reklam"],
+     "Tek Kisilik AI Icerik/Sosyal Medya Ajansi",
+     "Kucuk isletmelere, tamamen AI araclariyla (metin + gorsel + video "
+     "script) aylik sosyal medya icerigi ureten bir hizmet; musteri "
+     "basina haftada birkac saat is, AI cogu isi yapar.",
+     "Dusuk: Arac maliyeti aylik sabit, ek personel gerekmiyor.",
+     "Yuksek: Her musteri tekrarlayan gelir, zamanla portfoyle buyur.",
+     "3 esnafa sosyal medya yonetimini kime/nasil yaptirdigini sor, "
+     "fiyat teklifi hazirla."),
 ]
 
 
@@ -238,23 +259,26 @@ def translate_items(items):
 
 
 def generate_startup_ideas(all_items, rng, count=3):
+    """Haberlerden BAGIMSIZ, profile gore kurate edilmis havuzdan fikir secer.
+    O gunun gundemiyle (haber metniyle) eslesen anahtar kelimeli fikirler
+    varsa once onlar, kalan slotlar rastgele doldurulur -> boylece "gundem
+    ne ise girisim fikri de o yonde" olur ama fikrin kendisi haberden
+    turetilmez, sabit/kurate edilmis havuzdandir."""
     text_blob = " ".join((it["title"] + " " + it["summary"]).lower() for it in all_items)
-    matched = []
-    for keywords, name, desc, first_step in IDEA_TEMPLATES:
-        if any(kw in text_blob for kw in keywords):
-            source_item = next(
-                (it for it in all_items if any(kw in (it["title"] + it["summary"]).lower() for kw in keywords)),
-                None,
-            )
-            matched.append((name, desc, first_step, source_item))
 
-    rng.shuffle(matched)
-    ideas = matched[:count]
-    if len(ideas) < count:
-        remaining = [(n, d, s, None) for n, d, s in GENERIC_IDEAS]
-        rng.shuffle(remaining)
-        ideas += remaining[: count - len(ideas)]
-    return ideas[:count]
+    gundemle_eslesen = []
+    diger = []
+    for keywords, name, desc, maliyet, potansiyel, first_step in PROFILE_IDEA_POOL:
+        entry = (name, desc, maliyet, potansiyel, first_step)
+        if any(kw in text_blob for kw in keywords):
+            gundemle_eslesen.append(entry)
+        else:
+            diger.append(entry)
+
+    rng.shuffle(gundemle_eslesen)
+    rng.shuffle(diger)
+    ideas = (gundemle_eslesen + diger)[:count]
+    return ideas
 
 
 def build_email_html(categories_data, all_items, day_seed):
@@ -286,21 +310,19 @@ def build_email_html(categories_data, all_items, day_seed):
 
     ideas = generate_startup_ideas(all_items, rng)
     ideas_html = ""
-    for name, desc, first_step, source_item in ideas:
-        kaynak_html = ""
-        if source_item:
-            kaynak_html = f"<div style='color:#999; font-size:12px; margin-top:4px;'>Ilham kaynagi: <a href='{source_item['link']}' style='color:#999;'>{source_item['title']}</a></div>"
+    for name, desc, maliyet, potansiyel, first_step in ideas:
         ideas_html += f"""
         <div style="background:#fff8e6; border-left:4px solid #f5a623; padding:12px 14px; margin-bottom:14px; border-radius:4px;">
           <div style="font-weight:700; font-size:15px; color:#222;">{name}</div>
           <div style="color:#444; font-size:13px; margin-top:4px;">{desc}</div>
+          <div style="color:#666; font-size:12px; margin-top:6px;"><b>Maliyet/Bakim:</b> {maliyet}</div>
+          <div style="color:#666; font-size:12px; margin-top:2px;"><b>Buyume/Kazanc Potansiyeli:</b> {potansiyel}</div>
           <div style="color:#b35c00; font-size:13px; margin-top:6px;"><b>Ilk adim:</b> {first_step}</div>
-          {kaynak_html}
         </div>"""
 
     ideas_section = f"""
     <h2 style="font-size:18px; color:#222; border-bottom:2px solid #eee; padding-bottom:6px; margin-top:32px;">Girisim Firsatlari (Tek Basina + Sadece AI ile)</h2>
-    <p style="color:#555; font-size:13px;">Bugunun haberlerinden yola cikarak, 3-6 ay icinde tek basina ve AI araclariyla hayata gecirebilecegin fikirler:</p>
+    <p style="color:#555; font-size:13px;">Profiline gore kurate edilmis, dusuk maliyet/bakim gerektiren ama buyume ve kazanc potansiyeli yuksek, 3-6 ay icinde tek basina ve AI araclariyla hayata gecirebilecegin fikirler:</p>
     {ideas_html}
     """
 
