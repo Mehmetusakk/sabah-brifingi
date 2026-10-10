@@ -343,17 +343,24 @@ def build_email_html(categories_data, all_items, day_seed):
 def send_email(html_body, subject):
     gmail_user = os.environ["GMAIL_USER"]
     gmail_app_password = os.environ["GMAIL_APP_PASSWORD"]
-    mail_to = os.environ.get("MAIL_TO", gmail_user)
+    mail_to_list = os.environ.get("MAIL_TO_LIST", os.environ.get("MAIL_TO", gmail_user))
+    
+    # Virgülle ayrılmış listeyi parse et
+    recipients = [addr.strip() for addr in mail_to_list.split(",") if addr.strip()]
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = gmail_user
-    msg["To"] = mail_to
     msg.attach(MIMEText(html_body, "html", "utf-8"))
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(gmail_user, gmail_app_password)
-        server.sendmail(gmail_user, [mail_to], msg.as_string())
+        for recipient in recipients:
+            msg["To"] = recipient
+            server.sendmail(gmail_user, [recipient], msg.as_string())
+    
+    print(f"Mail {len(recipients)} kişiye gonderildi: {', '.join(recipients)}")
+
 
 
 def main():
