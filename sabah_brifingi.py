@@ -348,19 +348,17 @@ def send_email(html_body, subject):
     # Virgülle ayrılmış listeyi parse et
     recipients = [addr.strip() for addr in mail_to_list.split(",") if addr.strip()]
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = gmail_user
-    msg.attach(MIMEText(html_body, "html", "utf-8"))
-
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(gmail_user, gmail_app_password)
         for recipient in recipients:
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = subject
+            msg["From"] = gmail_user
             msg["To"] = recipient
+            msg.attach(MIMEText(html_body, "html", "utf-8"))
             server.sendmail(gmail_user, [recipient], msg.as_string())
     
     print(f"Mail {len(recipients)} kişiye gonderildi: {', '.join(recipients)}")
-
 
 
 def main():
