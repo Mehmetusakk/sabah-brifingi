@@ -1,12 +1,15 @@
-name: Daily English Words
+name: Gunun Ingilizce Kelimeleri Maili
 
 on:
   schedule:
-    - cron: "0 6 * * *"
+    - cron: "0 6 * * *"  # Her gun 06:00 UTC = 09:00 Istanbul (Turkiye DST uygulamiyor)
   workflow_dispatch: {}
 
+permissions:
+  contents: write
+
 jobs:
-  send-words:
+  send-mail:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,9 +21,15 @@ jobs:
       - name: Bagimliliklari kur
         run: pip install -r requirements.txt
 
-      - name: Daily English Words mailini gonder
+      - name: Kelime mailini gonder
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           MAIL_TO_LIST: ${{ secrets.MAIL_TO_LIST }}
         run: python daily_english_words.py
+
+      - name: Kullanilan kelimeleri repoya kaydet
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "used_words.json guncellendi (otomatik)"
+          file_pattern: used_words.json
