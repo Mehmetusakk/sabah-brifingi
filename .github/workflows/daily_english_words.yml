@@ -25,7 +25,7 @@ jobs:
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          MAIL_TO_LIST: ${{ secrets.MAIL_TO_LIST }}
+          MAIL_TO_LIST: ${{ secrets.MAIL_TO_LIST || secrets.MAIL_TO }}
         run: python daily_english_words.py
 
       - name: Kullanilan kelimeleri repoya kaydet
