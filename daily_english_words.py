@@ -1,13 +1,15 @@
 """
 Daily English Words
-Her gun 20 yeni Ingilizce kelime (4 grup x 5), Turkce cevirisi, ornek cumle
+Her gun 20 yeni Ingilizce kelime, Turkce cevirisi, ornek cumle
 ve ornek cumlenin Turkce cevirisi ile mail gonderir.
 
 Veri kaynaklari:
 - words_10k.txt: ~8750 sik kullanilan Ingilizce kelimeden olusan havuz
   (google-10000-english listesinden stopword/kisa kelime filtrelenerek turetildi)
 - Wiktionary REST API (ucretsiz, API key gerektirmez): tanim + ornek cumle
-- deep-translator / MyMemoryTranslator (ucretsiz): Turkce ceviri
+- Wiktionary "Turkish translations" tablosu: kelimenin doğru Turkce karsiligi
+  (birincil kaynak; MyMemoryTranslator sadece yedek olarak kullanilir)
+- Supheli/bozuk ceviri gelirse o kelime atlanip baska kelime secilir
 
 Tekrar onleme:
 - used_words.json dosyasinda simdiye kadar gonderilen tum kelimeler tutulur.
@@ -29,11 +31,8 @@ import requests
 from deep_translator import MyMemoryTranslator
 
 WORDS_PER_DAY = 20
-GROUP_SIZE = 5
 WORDS_FILE = os.path.join(os.path.dirname(__file__), "words_10k.txt")
 USED_WORDS_FILE = os.path.join(os.path.dirname(__file__), "used_words.json")
-
-GROUP_NAMES_TR = ["1. Grup", "2. Grup", "3. Grup", "4. Grup"]
 
 WIKTIONARY_HEADERS = {
     "User-Agent": "DailyEnglishWordsBot/1.0 (https://github.com/Mehmetusakk/sabah-brifingi)"
@@ -98,7 +97,7 @@ def fetch_word_info(word, retries=2):
     return None
 
 
-def _safe_translate(text, retries=2):
+def _safe_translate(text, retries=3):
     if not text:
         return text
     for attempt in range(retries):
@@ -106,8 +105,62 @@ def _safe_translate(text, retries=2):
             return MyMemoryTranslator(source="en-US", target="tr-TR").translate(text[:490])
         except Exception as exc:
             print(f"UYARI: ceviri basarisiz ({exc}), deneme {attempt + 1}", file=sys.stderr)
-            time.sleep(1.5)
+            time.sleep(3 * (attempt + 1))
     return text
+
+
+def _is_bad_translation(word, translation):
+    if not translation:
+        return True
+    w = word.strip().lower()
+    t = translation.strip().lower()
+    if t == w:
+        return True
+    if t.endswith(w) and len(t) - len(w) <= 2:
+        return True
+    if len(t) < 2:
+        return True
+    letters = re.sub(r"[^a-zA-ZçğıöşüÇĞİÖŞÜ]", "", t)
+    if len(letters) < 2:
+        return True
+    if "," in t or len(t.split()) > 3:
+        return True
+    english_suffixes = ("tion", "sion", "ment", "ness", "able", "ible", "ing", "ed", "ly")
+    if len(t.split()) == 1 and t.endswith(english_suffixes):
+        return True
+    return False
+
+
+def fetch_wiktionary_word_translation(word, retries=2):
+    url = f"https://en.wiktionary.org/w/index.php?title={word}&action=raw"
+    for attempt in range(retries):
+        try:
+            resp = requests.get(url, timeout=10, headers=WIKTIONARY_HEADERS)
+            if resp.status_code != 200:
+                return None
+            match = re.search(r"\* ?Turkish: (.+)", resp.text)
+            if not match:
+                return None
+            candidates = re.findall(r"\{\{t\+?\|tr\|([^|}]+)", match.group(1))
+            if not candidates:
+                return None
+            return candidates[0].strip()
+        except Exception as exc:
+            print(f"UYARI: {word} icin Wiktionary ceviri sorgusu basarisiz ({exc}), deneme {attempt + 1}", file=sys.stderr)
+            time.sleep(1)
+    return None
+
+
+def translate_word(word):
+    translation = fetch_wiktionary_word_translation(word)
+    if translation and not _is_bad_translation(word, translation):
+        return translation
+
+    translation = _safe_translate(word)
+    if translation and not _is_bad_translation(word, translation):
+        return translation
+
+    return None
 
 
 def pick_daily_words(pool, used_words, count=WORDS_PER_DAY):
@@ -125,45 +178,38 @@ def pick_daily_words(pool, used_words, count=WORDS_PER_DAY):
         info = fetch_word_info(word)
         if not info:
             continue
-        info["translation"] = _safe_translate(info["word"])
-        time.sleep(0.4)
+        translation = translate_word(word)
+        if not translation:
+            continue
+        info["translation"] = translation
+        time.sleep(0.8)
         info["definition_tr"] = _safe_translate(info["definition"])
-        time.sleep(0.4)
+        time.sleep(0.8)
         info["example_tr"] = _safe_translate(info["example"])
-        time.sleep(0.4)
+        time.sleep(0.8)
         chosen.append(info)
     return chosen
 
 
 def build_email_html(words):
-    groups = [words[i:i + GROUP_SIZE] for i in range(0, len(words), GROUP_SIZE)]
-
-    sections_html = []
-    for idx, group in enumerate(groups):
-        group_name = GROUP_NAMES_TR[idx] if idx < len(GROUP_NAMES_TR) else f"{idx + 1}. Grup"
-        cards = ""
-        for w in group:
-            pos = f" <span style='color:#999; font-size:12px;'>({w['part_of_speech']})</span>" if w["part_of_speech"] else ""
-            cards += f"""
-            <div style="background:#f9f9f9; border-left:4px solid #1a73e8; padding:12px 14px; margin-bottom:14px; border-radius:4px;">
-              <div style="font-weight:700; font-size:16px; color:#222;">{w['word'].capitalize()}{pos} &rarr; {w['translation']}</div>
-              <div style="color:#444; font-size:13px; margin-top:6px;"><b>Anlami:</b> {w['definition']}</div>
-              <div style="color:#666; font-size:13px; margin-top:4px;"><b>Anlami (TR):</b> {w['definition_tr']}</div>
-              <div style="color:#333; font-size:13px; margin-top:8px;"><b>Ornek:</b> {w['example']}</div>
-              <div style="color:#1a73e8; font-size:13px; margin-top:2px;"><b>Ornek (TR):</b> {w['example_tr']}</div>
-            </div>"""
-
-        sections_html.append(f"""
-        <h2 style="font-size:18px; color:#222; border-bottom:2px solid #eee; padding-bottom:6px; margin-top:28px;">{group_name}</h2>
-        {cards}
-        """)
+    cards = ""
+    for w in words:
+        pos = f" <span style='color:#999; font-size:12px;'>({w['part_of_speech']})</span>" if w["part_of_speech"] else ""
+        cards += f"""
+        <div style="background:#f9f9f9; border-left:4px solid #1a73e8; padding:12px 14px; margin-bottom:14px; border-radius:4px;">
+          <div style="font-weight:700; font-size:16px; color:#222;">{w['word'].capitalize()}{pos} &rarr; {w['translation']}</div>
+          <div style="color:#444; font-size:13px; margin-top:6px;"><b>Anlami:</b> {w['definition']}</div>
+          <div style="color:#666; font-size:13px; margin-top:4px;"><b>Anlami (TR):</b> {w['definition_tr']}</div>
+          <div style="color:#333; font-size:13px; margin-top:8px;"><b>Ornek:</b> {w['example']}</div>
+          <div style="color:#1a73e8; font-size:13px; margin-top:2px;"><b>Ornek (TR):</b> {w['example_tr']}</div>
+        </div>"""
 
     html = f"""
     <html>
     <body style="font-family: -apple-system, Helvetica, Arial, sans-serif; max-width:640px; margin:0 auto; padding:20px; color:#222;">
       <h1 style="font-size:22px;">Gunun Ingilizce Kelimeleri</h1>
       <p style="color:#555;">Bugun icin secilen {len(words)} yeni kelime, Turkce karsiligi, anlami ve ornek cumlesiyle asagida.</p>
-      {"".join(sections_html)}
+      {cards}
       <p style="color:#aaa; font-size:12px; margin-top:32px;">Bu mail her sabah otomatik olarak gonderilir. Kaynak: Wiktionary. Gonderilen kelimeler bir daha tekrar edilmez.</p>
     </body>
     </html>
@@ -177,6 +223,9 @@ def send_email(html_body, subject):
     mail_to_list = os.environ.get("MAIL_TO_LIST", os.environ.get("MAIL_TO", gmail_user))
 
     recipients = [addr.strip() for addr in mail_to_list.split(",") if addr.strip()]
+    if not recipients:
+        print("HATA: MAIL_TO_LIST bos veya tanimli degil, mail gonderilemedi", file=sys.stderr)
+        sys.exit(1)
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
         server.login(gmail_user, gmail_app_password)
