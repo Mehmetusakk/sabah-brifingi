@@ -67,29 +67,98 @@ CATEGORY_TITLES_TR = {
 
 ALREADY_TURKISH = {"Turkiyede Is Firsatlari", "Turkiye Guncel Ekonomik Haberleri"}
 
-ACTION_TIPS = {
+
+# Kategori bazli, haber icerigine (anahtar kelimeye) gore secilen HAZIR analiz
+# + oneri metinleri. Kullaniciya "git arastir" demek yerine, dogrudan ne
+# anlama geldigini ve ne yapabilecegini soyler.
+ANALYSIS_RULES = {
     "Teknoloji": [
-        "Bu teknolojiyi/urunu App Store veya Google Play'de ara; Turkiye'de benzer bir cozum var mi kontrol et.",
-        "Haberdeki sirketin is modelini incele; AI ile tek basina uyarlayabilecegin kucuk bir versiyonu var mi?",
-    ],
-    "Dunya ve Jeopolitik": [
-        "Bu gelismenin doviz kuru veya emtia fiyatlarina etkisini kontrol et; yan projelerinde bir risk/firsat var mi dusun.",
-        "Bu gelisme Turkiye'deki hangi sektorleri (lojistik, enerji, turizm, e-ticaret) etkiler bir dakika dusun.",
-    ],
-    "Turkiyede Is Firsatlari": [
-        "Haberdeki firma/sektorle baglantili birine LinkedIn'den mesaj at; ag kurmaya 5 dakika ayir.",
-        "Bu firsati/trendi not al; 3-6 aylik girisim planinla kesisen bir yani var mi degerlendir.",
-    ],
-    "Turkiye Guncel Ekonomik Haberleri": [
-        "Bu veri/kararin yan projelerine (fiyatlama, maliyet, yatirim zamanlamasi) etkisini bir dakika dusun.",
+        (["satin al", "acquisition", "acquire", "anlasma"],
+         "Buyuk sirketlerin kucuk girisimleri satin almasi bu alanda hizli "
+         "bir konsolidasyon oldugunu gosteriyor.",
+         "Rakip olmaya calismak yerine, bu urunlerin API'siyle entegre "
+         "calisan tamamlayici kucuk bir arac gelistirip o ekosisteme "
+         "satmayi degerlendir."),
+        (["yapay zeka", " ai ", "chatbot", "model"],
+         "Ana akim teknoloji haberlerine bile AI ozellikleri tasiniyor; "
+         "kullanicilarin AI araclarina aliskanligi hizla artiyor.",
+         "Bu urunun Turkce ve yerel kullanim senaryosuna uyarlanmis kucuk "
+         "bir versiyonunu AI ile tek basina hizlica prototipleyip test et."),
     ],
     "Yapay Zeka": [
-        "Bu AI aracini/modelini dene; tek basina kurabilecegin bir urun veya otomasyona donusturulebilir mi?",
+        (["guvenlik", "safety", "regulasyon", "regulation", "frene"],
+         "AI sirketleri guvenlik ve duzenleme baskisini daha fazla one "
+         "cikariyor; bu, sektorun olgunlasma donemine girdigini gosteriyor.",
+         "Kucuk isletmelere yonelik 'AI kullanim politikasi' veya 'guvenli "
+         "AI entegrasyonu' danismanligi gibi dusuk maliyetli bir hizmeti "
+         "tek basina sunabilirsin."),
+    ],
+    "Dunya ve Jeopolitik": [
+        (["savas", "war", "israil", "gazze", "ukrayna", "rusya", "iran"],
+         "Jeopolitik gerginlikler tedarik zinciri, enerji ve doviz "
+         "tarafinda belirsizlik yaratmaya devam ediyor.",
+         "Boyle donemlerde risk/fiyat takibi ihtiyaci artar; buna yonelik "
+         "basit bir izleme araci (ornegin doviz/emtia alarm botu) fikrini "
+         "degerlendirebilirsin."),
+    ],
+    "Turkiyede Is Firsatlari": [
+        ([""],
+         "Bu gelisme, Turkiye pazarinda kisa vadede hareketlenecek bir "
+         "alani isaret ediyor.",
+         "Haberdeki firma veya sektorle baglantili birine LinkedIn'den "
+         "mesaj at; 3-6 aylik girisim planinla kesisen bir yani olup "
+         "olmadigini bu hafta degerlendir."),
+    ],
+    "Turkiye Guncel Ekonomik Haberleri": [
+        ([""],
+         "Bu veri/karar, maliyet ve fiyatlama kararlarini onumuzdeki "
+         "aylarda etkileyebilir.",
+         "Yan projen icin fiyatlama veya yatirim zamanlamani bu veriye "
+         "gore bir dakika gozden gecir."),
     ],
     "Gunun Firsat Yazilim Projeleri": [
-        "Bu projeyi incele; ayni fikri Turkiye pazarina veya farkli bir niseye AI ile tek basina uyarlayabilir misin?",
+        ([""],
+         "Show HN'deki projeler genellikle 1-2 kisilik ekiplerin AI "
+         "araclariyla hizlica hayata gecirdigi nise urunler.",
+         "Bu projenin cozdugu problemin Turkce/yerel bir karsiligi yoksa, "
+         "ayni fikri AI ile 2-3 haftada bir MVP olarak kodlayip kucuk bir "
+         "kullanici kitlesine sunmayi degerlendir."),
     ],
 }
+
+DEFAULT_ANALYSIS = {
+    "Teknoloji": ("Teknoloji dunyasinda urun ve girisim hareketliligi surekli devam ediyor.",
+                  "Haberdeki urunun temel deger onerisini not al; benzer bir ihtiyaci "
+                  "Turkiye'de dusuk maliyetle cozup cozemeyecegini degerlendir."),
+    "Yapay Zeka": ("Yapay zeka araclari gundelik is sureclerine hizla entegre oluyor.",
+                   "Bu araci dene; Nesine'deki veya tanidigin bir is surecine uygulanabilir "
+                   "mi gor, uygulanabilirse kucuk bir otomasyon urunu olarak paketleyebilirsin."),
+    "Dunya ve Jeopolitik": ("Kuresel gelismeler Turkiye'deki sektorleri (lojistik, enerji, "
+                             "turizm, e-ticaret) dolayli yoldan etkileyebilir.",
+                            "Bu gelismenin kendi yan projelerine bir risk ya da firsat olarak "
+                            "yansiyip yansimadigini bir dakika dusun."),
+    "Turkiyede Is Firsatlari": ("Bu gelisme, Turkiye pazarinda kisa vadede hareketlenecek bir "
+                                 "alani isaret ediyor.",
+                                "Bu firsati/trendi not al; 3-6 aylik girisim planinla kesisen bir "
+                                "yani var mi degerlendir."),
+    "Turkiye Guncel Ekonomik Haberleri": ("Bu veri/karar, maliyet ve fiyatlama kararlarini "
+                                           "onumuzdeki aylarda etkileyebilir.",
+                                          "Yan projen icin fiyatlama veya yatirim zamanlamani bu "
+                                          "veriye gore bir dakika gozden gecir."),
+    "Gunun Firsat Yazilim Projeleri": ("Show HN'deki projeler genellikle 1-2 kisilik ekiplerin AI "
+                                        "araclariyla hizlica hayata gecirdigi nise urunler.",
+                                       "Bu projenin cozdugu problemin Turkce/yerel bir karsiligi "
+                                       "yoksa, ayni fikri AI ile 2-3 haftada bir MVP olarak kodlayip "
+                                       "kucuk bir kullanici kitlesine sunmayi degerlendir."),
+}
+
+
+def build_analysis(category, items):
+    text_blob = " ".join((it["title"] + " " + it["summary"]).lower() for it in items)
+    for keywords, analysis, suggestion in ANALYSIS_RULES.get(category, []):
+        if any(kw and kw in text_blob for kw in keywords):
+            return analysis, suggestion
+    return DEFAULT_ANALYSIS.get(category, (None, None))
 
 INTRO_LINES = [
     "Gunaydin Mehmet, dunya gece de durmadi, iste bilmen gerekenler.",
@@ -195,10 +264,9 @@ def _entry_datetime(entry):
     return None
 
 
-def fetch_category_items(sources, limit=ITEMS_PER_CATEGORY, window_hours=WINDOW_HOURS):
+def fetch_category_items(sources, seen_titles, limit=ITEMS_PER_CATEGORY, window_hours=WINDOW_HOURS):
     cutoff = _to_utc_struct_cutoff(window_hours)
     items = []
-    seen_titles = set()
     for source_name, url in sources:
         try:
             resp = requests.get(url, headers=HEADERS, timeout=15)
@@ -209,12 +277,13 @@ def fetch_category_items(sources, limit=ITEMS_PER_CATEGORY, window_hours=WINDOW_
             continue
         for entry in feed.entries:
             title = getattr(entry, "title", "").strip()
-            if not title or title in seen_titles:
+            title_key = title.lower()
+            if not title or title_key in seen_titles:
                 continue
             entry_dt = _entry_datetime(entry)
             if entry_dt is not None and entry_dt < cutoff:
                 continue
-            seen_titles.add(title)
+            seen_titles.add(title_key)
             link = getattr(entry, "link", "")
             summary = _clean_summary(getattr(entry, "summary", "") or getattr(entry, "description", ""))
             items.append({"title": title, "link": link, "summary": summary, "source": source_name})
@@ -223,7 +292,7 @@ def fetch_category_items(sources, limit=ITEMS_PER_CATEGORY, window_hours=WINDOW_
     if not items:
         # Zaman penceresinde hic haber yoksa, bos birakmak yerine en guncel
         # birkac basligi (tarihe bakmadan) goster.
-        return fetch_category_items(sources, limit=limit, window_hours=24 * 7)
+        return fetch_category_items(sources, seen_titles, limit=limit, window_hours=24 * 7)
     return items[:limit]
 
 
@@ -298,14 +367,21 @@ def build_email_html(categories_data, all_items, day_seed):
               <div style="color:#999; font-size:12px; margin-top:2px;">Kaynak: {item['source']}</div>
             </li>"""
 
-        tips = ACTION_TIPS.get(category, [])
-        tip = rng.choice(tips) if tips else ""
+        analysis, suggestion = build_analysis(category, items)
         title_tr = CATEGORY_TITLES_TR.get(category, category)
+
+        analysis_html = ""
+        if analysis:
+            analysis_html = (
+                "<div style='background:#f0f6ff; border-left:4px solid #1a73e8; "
+                "padding:10px 14px; font-size:13px; color:#333;'>"
+                f"<b>Analiz:</b> {analysis}<br><b>Onerim:</b> {suggestion}</div>"
+            )
 
         sections_html.append(f"""
         <h2 style="font-size:18px; color:#222; border-bottom:2px solid #eee; padding-bottom:6px; margin-top:28px;">{title_tr}</h2>
         <ul style="list-style:none; padding-left:0;">{headline_html}</ul>
-        {"<div style='background:#f0f6ff; border-left:4px solid #1a73e8; padding:10px 14px; font-size:13px; color:#333;'><b>Bugun ne yapabilirsin:</b> " + tip + "</div>" if tip else ""}
+        {analysis_html}
         """)
 
     ideas = generate_startup_ideas(all_items, rng)
@@ -367,8 +443,9 @@ def main():
 
     categories_data = {}
     all_items = []
+    seen_titles = set()
     for category, sources in FEEDS.items():
-        items = fetch_category_items(sources)
+        items = fetch_category_items(sources, seen_titles)
         if category not in ALREADY_TURKISH:
             items = translate_items(items)
         categories_data[category] = items
